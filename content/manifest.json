@@ -1,0 +1,304 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-24T03:00:00+08:00",
+  "project": "HealthAdvisor",
+  "project_codename": "01-健康",
+  "library_root": "_HealthLib",
+  "description": "健康知识库主题索引 - 10 大主题 19 篇 Markdown",
+  "total_topics": 10,
+  "total_files": 19,
+  "total_lines": 2539,
+  "topics": [
+    {
+      "id": "01",
+      "code": "nutrition",
+      "name_zh": "营养学基础",
+      "name_en": "Nutrition Fundamentals",
+      "dir": "01_营养学基础",
+      "category": "营养学",
+      "summary": "宏量营养素(蛋白质/脂肪/碳水)与微量营养素的摄入标准,膳食结构与营养标签解读。",
+      "audience": "所有人群 / 健康管理师 / 营养师",
+      "file_count": 2,
+      "files": [
+        {
+          "name": "营养学基础.md",
+          "title": "营养学基础",
+          "path": "01_营养学基础/营养学基础.md",
+          "audience": "所有人群 / 健康管理师 / AI健康助手",
+          "size_lines": 72,
+          "updated": "2026-05-30"
+        },
+        {
+          "name": "营养学基础-详细版.md",
+          "title": "营养学详细指南",
+          "path": "01_营养学基础/营养学基础-详细版.md",
+          "audience": "所有人群 / 健康管理师 / 营养师",
+          "size_lines": 139,
+          "updated": "2026-05-30"
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "code": "exercise",
+      "name_zh": "运动健康",
+      "name_en": "Exercise & Fitness",
+      "dir": "02_运动健康",
+      "category": "运动",
+      "summary": "运动生理学基础、有氧/抗阻/柔韧训练原则,FITT 处方设计。",
+      "audience": "所有人群 / 健身爱好者 / 康复人群",
+      "file_count": 2,
+      "files": [
+        {
+          "name": "运动健康.md",
+          "title": "运动健康",
+          "path": "02_运动健康/运动健康.md",
+          "audience": "所有人群 / 健身爱好者 / 康复人群",
+          "size_lines": 103,
+          "updated": "2026-05-30"
+        },
+        {
+          "name": "运动处方与训练方案.md",
+          "title": "运动处方与训练方案",
+          "path": "02_运动健康/运动处方与训练方案.md",
+          "audience": "所有人群 / 健身爱好者",
+          "size_lines": 177,
+          "updated": "2026-05-30"
+        }
+      ]
+    },
+    {
+      "id": "03",
+      "code": "sleep",
+      "name_zh": "睡眠科学",
+      "name_en": "Sleep Science",
+      "dir": "03_睡眠科学",
+      "category": "睡眠",
+      "summary": "睡眠生理周期(REM/NREM)、昼夜节律,失眠/阻塞性睡眠呼吸暂停等常见障碍。",
+      "audience": "所有人群 / 失眠人群 / 健康管理",
+      "file_count": 2,
+      "files": [
+        {
+          "name": "睡眠科学.md",
+          "title": "睡眠科学",
+          "path": "03_睡眠科学/睡眠科学.md",
+          "audience": "所有人群 / 失眠人群 / 健康管理",
+          "size_lines": 96,
+          "updated": "2026-05-30"
+        },
+        {
+          "name": "睡眠障碍与睡眠卫生.md",
+          "title": "睡眠障碍与睡眠卫生指南",
+          "path": "03_睡眠科学/睡眠障碍与睡眠卫生.md",
+          "audience": "所有人群 / 有睡眠问题者",
+          "size_lines": 170,
+          "updated": "2026-05-30"
+        }
+      ]
+    },
+    {
+      "id": "04",
+      "code": "mental",
+      "name_zh": "心理健康",
+      "name_en": "Mental Health",
+      "dir": "04_心理健康",
+      "category": "心理",
+      "summary": "情绪识别、压力管理、焦虑抑郁识别与心理急救(CISM),危机干预路径。",
+      "audience": "所有人群 / 职场人士 / AI心理支持",
+      "file_count": 2,
+      "files": [
+        {
+          "name": "心理健康.md",
+          "title": "心理健康",
+          "path": "04_心理健康/心理健康.md",
+          "audience": "所有人群 / 职场人士 / AI心理支持",
+          "size_lines": 100,
+          "updated": "2026-05-30"
+        },
+        {
+          "name": "情绪管理与心理急救.md",
+          "title": "情绪管理与心理急救",
+          "path": "04_心理健康/情绪管理与心理急救.md",
+          "audience": "所有人群 / 心理支持者",
+          "size_lines": 150,
+          "updated": "2026-05-30"
+        }
+      ]
+    },
+    {
+      "id": "05",
+      "code": "disease",
+      "name_zh": "常见疾病预防",
+      "name_en": "Disease Prevention",
+      "dir": "05_常见疾病预防",
+      "category": "疾病预防",
+      "summary": "常见慢性病(高血压/糖尿病/心脑血管)危险因素与一级/二级预防策略。",
+      "audience": "所有人群 / 家庭健康管理",
+      "file_count": 2,
+      "files": [
+        {
+          "name": "常见疾病预防.md",
+          "title": "常见疾病预防",
+          "path": "05_常见疾病预防/常见疾病预防.md",
+          "audience": "所有人群 / 家庭健康管理",
+          "size_lines": 85,
+          "updated": "2026-05-30"
+        },
+        {
+          "name": "心脑血管疾病与慢性病管理.md",
+          "title": "心脑血管疾病与慢性病管理",
+          "path": "05_常见疾病预防/心脑血管疾病与慢性病管理.md",
+          "audience": "所有人群 / 中老年人 / 慢性病高危人群",
+          "size_lines": 185,
+          "updated": "2026-05-30"
+        }
+      ]
+    },
+    {
+      "id": "06",
+      "code": "checkup",
+      "name_zh": "体检与指标解读",
+      "name_en": "Health Checkup & Indicators",
+      "dir": "06_体检与指标解读",
+      "category": "体检",
+      "summary": "体检项目(血常规/生化/影像)正常参考范围、异常项分级与复查建议。",
+      "audience": "所有人群 / 职场人士 / 慢病人群",
+      "file_count": 2,
+      "files": [
+        {
+          "name": "体检与指标解读.md",
+          "title": "体检与指标解读",
+          "path": "06_体检与指标解读/体检与指标解读.md",
+          "audience": "所有人群 / 职场人士 / 慢病人群",
+          "size_lines": 89,
+          "updated": "2026-05-30"
+        },
+        {
+          "name": "体检项目详解与指标解读.md",
+          "title": "体检项目详解与指标深度解读",
+          "path": "06_体检与指标解读/体检项目详解与指标解读.md",
+          "audience": "所有人群 / 体检者",
+          "size_lines": 147,
+          "updated": "2026-05-30"
+        }
+      ]
+    },
+    {
+      "id": "07",
+      "code": "diet",
+      "name_zh": "健康饮食方案",
+      "name_en": "Diet Plans",
+      "dir": "07_健康饮食方案",
+      "category": "饮食",
+      "summary": "地中海/DASH/减脂/增肌等具体食谱模板,按热量与人群分场景落地。",
+      "audience": "所有人群 / 减脂人群 / 慢病人群",
+      "file_count": 1,
+      "files": [
+        {
+          "name": "健康饮食方案.md",
+          "title": "健康饮食方案",
+          "path": "07_健康饮食方案/健康饮食方案.md",
+          "audience": "所有人群 / 减脂人群 / 慢病人群",
+          "size_lines": 94,
+          "updated": "2026-05-30"
+        }
+      ]
+    },
+    {
+      "id": "08",
+      "code": "workplace",
+      "name_zh": "职场健康",
+      "name_en": "Workplace Health",
+      "dir": "08_职场健康",
+      "category": "职场",
+      "summary": "久坐/颈腰椎/干眼/职业紧张等办公室高发问题,工间操与办公环境优化。",
+      "audience": "职场人士 / 久坐人群 / 管理人员",
+      "file_count": 2,
+      "files": [
+        {
+          "name": "职场健康.md",
+          "title": "职场健康",
+          "path": "08_职场健康/职场健康.md",
+          "audience": "职场人士 / 久坐人群 / 管理人员",
+          "size_lines": 89,
+          "updated": "2026-05-30"
+        },
+        {
+          "name": "职业病防护与办公环境健康.md",
+          "title": "职业病防护与办公环境健康",
+          "path": "08_职场健康/职业病防护与办公环境健康.md",
+          "audience": "办公室人群 / 久坐工作者 / 特殊职业",
+          "size_lines": 211,
+          "updated": "2026-05-30"
+        }
+      ]
+    },
+    {
+      "id": "09",
+      "code": "tcm",
+      "name_zh": "中医养生",
+      "name_en": "Traditional Chinese Medicine",
+      "dir": "09_中医养生",
+      "category": "中医",
+      "summary": "九种体质辨识、节气养生、药食同源与常见亚健康状态的中医调理思路。",
+      "audience": "所有人群 / 中医爱好者 / 亚健康人群",
+      "file_count": 2,
+      "files": [
+        {
+          "name": "中医养生.md",
+          "title": "中医养生",
+          "path": "09_中医养生/中医养生.md",
+          "audience": "所有人群 / 中医爱好者",
+          "size_lines": 99,
+          "updated": "2026-05-30"
+        },
+        {
+          "name": "中医体质辨识与食疗药膳.md",
+          "title": "中医体质辨识与食疗药膳",
+          "path": "09_中医养生/中医体质辨识与食疗药膳.md",
+          "audience": "所有人群 / 中医爱好者 / 亚健康人群",
+          "size_lines": 201,
+          "updated": "2026-05-30"
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "code": "firstaid",
+      "name_zh": "急救常识",
+      "name_en": "First Aid",
+      "dir": "10_急救常识",
+      "category": "急救",
+      "summary": "心肺复苏(CPR)/AED 使用/创伤止血/气道异物等家庭与公共场所急救流程。",
+      "audience": "所有人群 / 家庭急救",
+      "file_count": 2,
+      "files": [
+        {
+          "name": "急救常识.md",
+          "title": "急救常识",
+          "path": "10_急救常识/急救常识.md",
+          "audience": "所有人群 / 家庭急救",
+          "size_lines": 114,
+          "updated": "2026-05-30"
+        },
+        {
+          "name": "急救操作详解与AED使用.md",
+          "title": "急救操作详解与AED使用",
+          "path": "10_急救常识/急救操作详解与AED使用.md",
+          "audience": "所有人群 / 急救志愿者",
+          "size_lines": 218,
+          "updated": "2026-05-30"
+        }
+      ]
+    }
+  ],
+  "schema_notes": {
+    "id": "主题编号(01-10),与目录前缀一致",
+    "code": "英文短码,用于 URL/数据库键",
+    "name_zh": "中文主题名",
+    "dir": "主题目录名(相对 library_root)",
+    "files[].path": "文件相对路径(相对 library_root),前端可拼接 ../<path> 访问",
+    "files[].size_lines": "行数,用于知识库检索的粗筛权重",
+    "audience": "目标人群,用于 AI 问诊时的引用匹配"
+  }
+}
