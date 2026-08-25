@@ -1,0 +1,153 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-26T03:00:00+08:00",
+  "project": "HealthAdvisor",
+  "project_codename": "01-健康",
+  "description": "家庭档案表结构 - Phase 0 第三步,设计 member / allergy / medication / history / family_history 5 张表,供 Phase 1 FastAPI + PostgreSQL 实现使用",
+  "design_principles": [
+    "家庭维度优先 - 所有表都挂 family_id,支持多家庭隔离",
+    "成员独立画像 - member 为核心,其他表全部 member_id 外键",
+    "敏感字段加密 - 身份证/手机号/详细地址用 pgcrypto 列加密",
+    "时间字段统一 - created_at / updated_at / archived_at 三件套",
+    "软删除优先 - 家庭档案场景下,删除影响追踪,默认 archived 而非硬删"
+  ],
+  "tables": [
+    {
+      "name": "member",
+      "purpose": "家庭成员主档 - 一人一条,所有健康数据挂在此",
+      "primary_key": "member_id",
+      "fields": [
+        { "name": "member_id", "type": "UUID", "nullable": false, "description": "成员主键" },
+        { "name": "family_id", "type": "UUID", "nullable": false, "fk": "family.family_id", "description": "所属家庭" },
+        { "name": "name", "type": "VARCHAR(64)", "nullable": false, "description": "成员姓名/昵称" },
+        { "name": "relationship", "type": "ENUM", "enum_values": ["self", "spouse", "father", "mother", "son", "daughter", "grandparent", "other"], "nullable": false, "description": "与户主关系" },
+        { "name": "gender", "type": "ENUM", "enum_values": ["male", "female", "other"], "nullable": false },
+        { "name": "birth_date", "type": "DATE", "nullable": false, "description": "出生日期,用于算年龄/分段建议" },
+        { "name": "id_card_enc", "type": "BYTEA", "nullable": true, "description": "身份证号 pgp_sym_encrypt 列加密" },
+        { "name": "phone_enc", "type": "BYTEA", "nullable": true, "description": "手机号列加密" },
+        { "name": "blood_type", "type": "ENUM", "enum_values": ["A", "B", "AB", "O", "unknown"], "nullable": true, "description": "ABO 血型,急救场景用" },
+        { "name": "height_cm", "type": "DECIMAL(5,1)", "nullable": true, "description": "身高,用于 BMI 计算" },
+        { "name": "occupation", "type": "VARCHAR(64)", "nullable": true, "description": "职业,影响久坐/压力建议" },
+        { "name": "lifestyle_tags", "type": "JSONB", "nullable": true, "description": "习惯标签 {smoke, drink, exercise_freq, sleep_late}" },
+        { "name": "avatar_url", "type": "VARCHAR(256)", "nullable": true },
+        { "name": "created_at", "type": "TIMESTAMPTZ", "nullable": false, "default": "now()" },
+        { "name": "updated_at", "type": "TIMESTAMPTZ", "nullable": false, "default": "now()" },
+        { "name": "archived_at", "type": "TIMESTAMPTZ", "nullable": true, "description": "软删除标记" }
+      ],
+      "indexes": [
+        "UNIQUE (family_id, name, birth_date)",
+        "INDEX (family_id) WHERE archived_at IS NULL"
+      ]
+    },
+    {
+      "name": "allergy",
+      "purpose": "过敏史 - 食物/药物/接触物,饮食方案与用药时强提示",
+      "primary_key": "allergy_id",
+      "fields": [
+        { "name": "allergy_id", "type": "UUID", "nullable": false },
+        { "name": "member_id", "type": "UUID", "nullable": false, "fk": "member.member_id" },
+        { "name": "allergen", "type": "VARCHAR(128)", "nullable": false, "description": "过敏原,如 青霉素/花生/尘螨" },
+        { "name": "category", "type": "ENUM", "enum_values": ["food", "drug", "contact", "inhalant", "other"], "nullable": false },
+        { "name": "severity", "type": "ENUM", "enum_values": ["mild", "moderate", "severe", "anaphylaxis"], "nullable": false, "description": "严重度,severe/anaphylaxis 在饮食/用药推荐时强制拦截" },
+        { "name": "reaction", "type": "TEXT", "nullable": true, "description": "反应描述,如 皮疹/呼吸困难" },
+        { "name": "diagnosed_at", "type": "DATE", "nullable": true },
+        { "name": "note", "type": "TEXT", "nullable": true },
+        { "name": "created_at", "type": "TIMESTAMPTZ", "nullable": false, "default": "now()" },
+        { "name": "updated_at", "type": "TIMESTAMPTZ", "nullable": false, "default": "now()" },
+        { "name": "archived_at", "type": "TIMESTAMPTZ", "nullable": true }
+      ],
+      "indexes": [
+        "INDEX (member_id) WHERE archived_at IS NULL",
+        "INDEX (member_id, category) WHERE archived_at IS NULL"
+      ]
+    },
+    {
+      "name": "medication",
+      "purpose": "用药记录 - 当前在用 / 历史用药,慢病追踪与药物相互作用检查",
+      "primary_key": "medication_id",
+      "fields": [
+        { "name": "medication_id", "type": "UUID", "nullable": false },
+        { "name": "member_id", "type": "UUID", "nullable": false, "fk": "member.member_id" },
+        { "name": "drug_name", "type": "VARCHAR(128)", "nullable": false, "description": "药品通用名,如 二甲双胍" },
+        { "name": "brand_name", "type": "VARCHAR(128)", "nullable": true, "description": "商品名,如 格华止" },
+        { "name": "dosage", "type": "VARCHAR(64)", "nullable": true, "description": "剂量,如 0.5g/次" },
+        { "name": "frequency", "type": "VARCHAR(64)", "nullable": true, "description": "频次,如 2 次/日" },
+        { "name": "indication", "type": "VARCHAR(256)", "nullable": true, "description": "适应症,关联 medical_ner.disease" },
+        { "name": "start_date", "type": "DATE", "nullable": true },
+        { "name": "end_date", "type": "DATE", "nullable": true, "description": "end_date 为空表示当前在用" },
+        { "name": "prescribed_by", "type": "VARCHAR(64)", "nullable": true, "description": "开具医生" },
+        { "name": "status", "type": "ENUM", "enum_values": ["active", "paused", "stopped", "completed"], "nullable": false, "default": "active" },
+        { "name": "reminder_enabled", "type": "BOOLEAN", "nullable": false, "default": false, "description": "是否开启用药提醒" },
+        { "name": "created_at", "type": "TIMESTAMPTZ", "nullable": false, "default": "now()" },
+        { "name": "updated_at", "type": "TIMESTAMPTZ", "nullable": false, "default": "now()" },
+        { "name": "archived_at", "type": "TIMESTAMPTZ", "nullable": true }
+      ],
+      "indexes": [
+        "INDEX (member_id) WHERE archived_at IS NULL",
+        "INDEX (member_id, status) WHERE status = 'active'",
+        "INDEX (drug_name)"
+      ]
+    },
+    {
+      "name": "history",
+      "purpose": "既往病史 - 慢病/手术/住院/重大事件,影响 AI 解读上下文",
+      "primary_key": "history_id",
+      "fields": [
+        { "name": "history_id", "type": "UUID", "nullable": false },
+        { "name": "member_id", "type": "UUID", "nullable": false, "fk": "member.member_id" },
+        { "name": "condition_name", "type": "VARCHAR(128)", "nullable": false, "description": "疾病名,如 2 型糖尿病/阑尾炎手术" },
+        { "name": "icd10_code", "type": "VARCHAR(16)", "nullable": true, "description": "ICD-10 编码,可空但鼓励填" },
+        { "name": "category", "type": "ENUM", "enum_values": ["chronic", "acute", "surgery", "hospitalization", "trauma", "other"], "nullable": false },
+        { "name": "diagnosed_at", "type": "DATE", "nullable": true, "description": "确诊日期" },
+        { "name": "is_chronic", "type": "BOOLEAN", "nullable": false, "default": false, "description": "是否慢病(影响追踪频率)" },
+        { "name": "is_resolved", "type": "BOOLEAN", "nullable": false, "default": false, "description": "是否已痊愈" },
+        { "name": "treatment", "type": "TEXT", "nullable": true, "description": "治疗简述" },
+        { "name": "hospital", "type": "VARCHAR(128)", "nullable": true },
+        { "name": "note", "type": "TEXT", "nullable": true },
+        { "name": "created_at", "type": "TIMESTAMPTZ", "nullable": false, "default": "now()" },
+        { "name": "updated_at", "type": "TIMESTAMPTZ", "nullable": false, "default": "now()" },
+        { "name": "archived_at", "type": "TIMESTAMPTZ", "nullable": true }
+      ],
+      "indexes": [
+        "INDEX (member_id) WHERE archived_at IS NULL",
+        "INDEX (member_id, is_chronic) WHERE is_chronic = true AND archived_at IS NULL",
+        "INDEX (condition_name)"
+      ]
+    },
+    {
+      "name": "family_history",
+      "purpose": "家族史 - 血缘亲属的疾病,用于遗传风险评估与体检项推荐",
+      "primary_key": "family_history_id",
+      "fields": [
+        { "name": "family_history_id", "type": "UUID", "nullable": false },
+        { "name": "member_id", "type": "UUID", "nullable": false, "fk": "member.member_id", "description": "此条记录归属哪位成员(被评估者)" },
+        { "name": "relative_relation", "type": "ENUM", "enum_values": ["father", "mother", "paternal_grandfather", "paternal_grandmother", "maternal_grandfather", "maternal_grandmother", "sibling", "child", "other"], "nullable": false, "description": "血缘亲属关系" },
+        { "name": "condition_name", "type": "VARCHAR(128)", "nullable": false, "description": "家族疾病,如 胃癌/高血压" },
+        { "name": "icd10_code", "type": "VARCHAR(16)", "nullable": true },
+        { "name": "onset_age", "type": "INT", "nullable": true, "description": "亲属发病年龄" },
+        { "name": "is_deceased_from_it", "type": "BOOLEAN", "nullable": false, "default": false, "description": "是否因此病去世" },
+        { "name": "note", "type": "TEXT", "nullable": true },
+        { "name": "created_at", "type": "TIMESTAMPTZ", "nullable": false, "default": "now()" },
+        { "name": "updated_at", "type": "TIMESTAMPTZ", "nullable": false, "default": "now()" },
+        { "name": "archived_at", "type": "TIMESTAMPTZ", "nullable": true }
+      ],
+      "indexes": [
+        "INDEX (member_id) WHERE archived_at IS NULL",
+        "INDEX (member_id, condition_name)"
+      ]
+    }
+  ],
+  "enums_summary": {
+    "relationship": "self/spouse/father/mother/son/daughter/grandparent/other",
+    "severity_allergy": "mild/moderate/severe/anaphylaxis",
+    "medication_status": "active/paused/stopped/completed",
+    "history_category": "chronic/acute/surgery/hospitalization/trauma/other",
+    "relative_relation": "father/mother/paternal_grandfather/paternal_grandmother/maternal_grandfather/maternal_grandmother/sibling/child/other"
+  },
+  "next_steps": [
+    "Phase 0 收尾:补 family 主表(用于多家庭隔离,字段只有 family_id / name / created_by)",
+    "Phase 0 收尾:5-10 份真实体检报告 OCR 样本",
+    "Phase 0 收尾:SQLite → PostgreSQL 迁移脚本 + pgcrypto 钩子",
+    "Phase 1:按本 schema 生成 Alembic 迁移 + SQLAlchemy 模型"
+  ]
+}
