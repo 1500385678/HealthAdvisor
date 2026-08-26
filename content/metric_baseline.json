@@ -1,0 +1,294 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-27T03:00:00+08:00",
+  "project": "HealthAdvisor",
+  "project_codename": "01-健康",
+  "description": "慢病指标基线范围表 - Phase 0 第四步,定义家庭慢病追踪模块(血压/血糖/血脂/BMI/尿酸/肝肾)的参考范围,供 Phase 1 指标录入阈值校验 + 异常分级 + 趋势预警使用",
+  "source": "中国高血压防治指南(2018 修订)/WHO 2021 Diabetes Diagnostic/中国 2 型糖尿病防治指南(2020)/中国成人血脂异常防治指南(2016 修订)/中国肥胖防治指南/中国高尿酸血症与痛风诊疗指南(2019)",
+  "language": "zh-CN",
+  "design_principles": [
+    "参考临床指南 - 阈值不臆造,所有区间注明来源,便于医生 review",
+    "多级分类 - 至少区分 正常/临界/异常/危急 四档,体检解读时直接对应 绿/黄/红 三色",
+    "年龄分段 - 部分指标(血压/血糖/血脂)按成人/老人分段,儿童/孕妇另列",
+    "与 medical_ner 联动 - metric 字段命名严格对齐 medical_ner.json 中的 metric 类,便于实体识别后查表",
+    "录入即校验 - 任何 metric_record 录入时,先查本表定位等级,再决定是否预警",
+    "危急值显式标注 - 触发 red_flag 规则的值不在本表定义,而是 medical_ner.json red_flag_rules"
+  ],
+  "stats": {
+    "metric_count": 7,
+    "category_count": 4,
+    "stage_count": 4,
+    "with_age_segments": 3,
+    "source_guidelines": 6
+  },
+  "categories": [
+    "cardiovascular(血压/心率)",
+    "metabolic(血糖/血脂/尿酸)",
+    "body_composition(BMI/腰围)",
+    "liver_kidney(肝功能/肾功能)"
+  ],
+  "stages": {
+    "normal": { "label": "正常", "color": "green", "action": "无需干预,继续维持" },
+    "borderline": { "label": "临界/亚健康", "color": "yellow", "action": "生活方式干预,3-6 月复查" },
+    "abnormal": { "label": "异常", "color": "orange", "action": "建议就诊,排查病因,启动治疗" },
+    "critical": { "label": "危急", "color": "red", "action": "立即就医,可能触发 red_flag" }
+  },
+  "metrics": [
+    {
+      "name": "SBP",
+      "label": "收缩压",
+      "unit": "mmHg",
+      "category": "cardiovascular",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "normal", "range": "< 120", "description": "理想血压" },
+        { "stage": "borderline", "range": "120-139", "description": "正常高值,需关注" },
+        { "stage": "abnormal", "range": "140-159", "description": "1 级高血压" },
+        { "stage": "abnormal", "range": "160-179", "description": "2 级高血压" },
+        { "stage": "critical", "range": ">= 180", "description": "3 级高血压/高血压急症" }
+      ],
+      "elderly_adjustment": ">= 65 岁,SBP 150 mmHg 可接受(避免过低导致灌注不足)",
+      "source": "中国高血压防治指南 2018 · WHO 2021",
+      "red_flag": ">= 180 触发 medical_ner.red_flag_rules"
+    },
+    {
+      "name": "DBP",
+      "label": "舒张压",
+      "unit": "mmHg",
+      "category": "cardiovascular",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "normal", "range": "< 80", "description": "理想" },
+        { "stage": "borderline", "range": "80-89", "description": "正常高值" },
+        { "stage": "abnormal", "range": "90-99", "description": "1 级高血压" },
+        { "stage": "abnormal", "range": "100-109", "description": "2 级高血压" },
+        { "stage": "critical", "range": ">= 110", "description": "高血压急症" }
+      ],
+      "source": "中国高血压防治指南 2018"
+    },
+    {
+      "name": "HR",
+      "label": "静息心率",
+      "unit": "bpm",
+      "category": "cardiovascular",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "abnormal", "range": "< 50", "description": "心动过缓,需排查(运动员除外)" },
+        { "stage": "normal", "range": "60-100", "description": "正常范围" },
+        { "stage": "abnormal", "range": "> 100", "description": "心动过速,排查甲亢/贫血/心律失常" }
+      ],
+      "note": "运动员静息心率可低至 40-50,需结合 member.lifestyle_tags 排除",
+      "source": "WHO 心率参考 · AAFP 2022"
+    },
+    {
+      "name": "FBG",
+      "label": "空腹血糖",
+      "unit": "mmol/L",
+      "category": "metabolic",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "normal", "range": "3.9-6.0", "description": "正常" },
+        { "stage": "borderline", "range": "6.1-6.9", "description": "空腹血糖受损(IFG)" },
+        { "stage": "abnormal", "range": ">= 7.0", "description": "糖尿病(需复查确认)" }
+      ],
+      "red_flag": "< 2.8 或 > 16.7 触发 red_flag · 低/高血糖危象",
+      "source": "中国 2 型糖尿病防治指南 2020 · WHO 2021"
+    },
+    {
+      "name": "2hPG",
+      "label": "餐后 2 小时血糖",
+      "unit": "mmol/L",
+      "category": "metabolic",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "normal", "range": "< 7.8", "description": "正常" },
+        { "stage": "borderline", "range": "7.8-11.0", "description": "糖耐量异常(IGT)" },
+        { "stage": "abnormal", "range": ">= 11.1", "description": "糖尿病" }
+      ],
+      "source": "中国 2 型糖尿病防治指南 2020"
+    },
+    {
+      "name": "HbA1c",
+      "label": "糖化血红蛋白",
+      "unit": "%",
+      "category": "metabolic",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "normal", "range": "< 5.7", "description": "正常" },
+        { "stage": "borderline", "range": "5.7-6.4", "description": "糖尿病前期" },
+        { "stage": "abnormal", "range": ">= 6.5", "description": "糖尿病诊断阈值" }
+      ],
+      "elderly_adjustment": ">= 65 岁且无低血糖史,目标可放宽至 7.5-8.0%",
+      "note": "反映近 2-3 月平均血糖,慢病追踪核心指标",
+      "source": "中国 2 型糖尿病防治指南 2020 · ADA 2024"
+    },
+    {
+      "name": "TC",
+      "label": "总胆固醇",
+      "unit": "mmol/L",
+      "category": "metabolic",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "normal", "range": "< 5.2", "description": "合适水平" },
+        { "stage": "borderline", "range": "5.2-6.2", "description": "边缘升高" },
+        { "stage": "abnormal", "range": ">= 6.2", "description": "升高" }
+      ],
+      "source": "中国成人血脂异常防治指南 2016 修订"
+    },
+    {
+      "name": "LDL",
+      "label": "低密度脂蛋白胆固醇",
+      "unit": "mmol/L",
+      "category": "metabolic",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "normal", "range": "< 3.4", "description": "理想" },
+        { "stage": "borderline", "range": "3.4-4.1", "description": "边缘升高" },
+        { "stage": "abnormal", "range": "4.1-4.9", "description": "升高" },
+        { "stage": "abnormal", "range": ">= 4.9", "description": "高危" }
+      ],
+      "high_risk_adjustment": "已确诊 ASCVD/糖尿病/慢性肾病,目标 < 1.8 mmol/L",
+      "source": "中国成人血脂异常防治指南 2016 修订"
+    },
+    {
+      "name": "HDL",
+      "label": "高密度脂蛋白胆固醇",
+      "unit": "mmol/L",
+      "category": "metabolic",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "abnormal", "range": "< 1.0", "description": "降低,心血管风险↑" },
+        { "stage": "normal", "range": "1.0-1.5", "description": "正常" },
+        { "stage": "normal", "range": "> 1.5", "description": "良好(保护因素)" }
+      ],
+      "note": "越低越差,与 LDL 相反",
+      "source": "中国成人血脂异常防治指南 2016 修订"
+    },
+    {
+      "name": "TG",
+      "label": "甘油三酯",
+      "unit": "mmol/L",
+      "category": "metabolic",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "normal", "range": "< 1.7", "description": "合适水平" },
+        { "stage": "borderline", "range": "1.7-2.3", "description": "边缘升高" },
+        { "stage": "abnormal", "range": "2.3-5.6", "description": "升高" },
+        { "stage": "abnormal", "range": ">= 5.6", "description": "高甘油三酯血症(胰腺炎风险)" }
+      ],
+      "source": "中国成人血脂异常防治指南 2016 修订"
+    },
+    {
+      "name": "UA",
+      "label": "血尿酸",
+      "unit": "μmol/L",
+      "category": "metabolic",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "normal", "range": "男性 208-428 / 女性 155-357", "description": "正常范围(男女不同)" },
+        { "stage": "borderline", "range": "男性 428-480 / 女性 357-420", "description": "高尿酸前期" },
+        { "stage": "abnormal", "range": "男性 > 480 / 女性 > 420", "description": "高尿酸血症(痛风风险)" }
+      ],
+      "note": "女性绝经后上限与男性趋同",
+      "source": "中国高尿酸血症与痛风诊疗指南 2019"
+    },
+    {
+      "name": "BMI",
+      "label": "体质指数",
+      "unit": "kg/m²",
+      "category": "body_composition",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "abnormal", "range": "< 18.5", "description": "偏瘦" },
+        { "stage": "normal", "range": "18.5-23.9", "description": "正常" },
+        { "stage": "borderline", "range": "24.0-27.9", "description": "超重" },
+        { "stage": "abnormal", "range": ">= 28.0", "description": "肥胖" }
+      ],
+      "elderly_adjustment": ">= 65 岁,BMI 22-26.9 反而是优势区间(肌少症/骨质疏松风险↓)",
+      "source": "中国肥胖防治指南 · WHO 亚洲成人标准"
+    },
+    {
+      "name": "WaistCircum",
+      "label": "腰围",
+      "unit": "cm",
+      "category": "body_composition",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "normal", "range": "男性 < 90 / 女性 < 85", "description": "正常" },
+        { "stage": "abnormal", "range": "男性 >= 90 / 女性 >= 85", "description": "中心性肥胖(心血管/代谢风险↑)" }
+      ],
+      "source": "中国肥胖防治指南"
+    },
+    {
+      "name": "ALT",
+      "label": "丙氨酸氨基转移酶",
+      "unit": "U/L",
+      "category": "liver_kidney",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "normal", "range": "7-40", "description": "正常" },
+        { "stage": "borderline", "range": "41-80", "description": "轻度升高,建议复查+排查" },
+        { "stage": "abnormal", "range": "> 80", "description": "明显升高,需就诊排查肝病" }
+      ],
+      "note": "剧烈运动/熬夜/用药后可能一过性升高,建议复查",
+      "source": "中华医学会肝病学分会 2010"
+    },
+    {
+      "name": "AST",
+      "label": "天冬氨酸氨基转移酶",
+      "unit": "U/L",
+      "category": "liver_kidney",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "normal", "range": "13-35", "description": "正常" },
+        { "stage": "abnormal", "range": "> 35", "description": "升高,需结合 ALT/AST 比值判断" }
+      ],
+      "source": "中华医学会肝病学分会 2010"
+    },
+    {
+      "name": "Cr",
+      "label": "血清肌酐",
+      "unit": "μmol/L",
+      "category": "liver_kidney",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "normal", "range": "男性 54-106 / 女性 44-97", "description": "正常" },
+        { "stage": "borderline", "range": "略超上限", "description": "需结合 eGFR 判断" },
+        { "stage": "abnormal", "range": "明显升高", "description": "肾功能受损,需就诊" }
+      ],
+      "note": "单独 Cr 不够,必须配合 eGFR(估算肾小球滤过率)",
+      "source": "KDIGO 慢性肾病指南 2012"
+    },
+    {
+      "name": "eGFR",
+      "label": "估算肾小球滤过率",
+      "unit": "mL/min/1.73m²",
+      "category": "liver_kidney",
+      "applicable_to": ["adult", "elderly"],
+      "stages": [
+        { "stage": "normal", "range": ">= 90", "description": "正常/1 期" },
+        { "stage": "borderline", "range": "60-89", "description": "2 期,轻度下降" },
+        { "stage": "abnormal", "range": "45-59", "description": "3a 期" },
+        { "stage": "abnormal", "range": "30-44", "description": "3b 期" },
+        { "stage": "abnormal", "range": "15-29", "description": "4 期" },
+        { "stage": "critical", "range": "< 15", "description": "5 期/尿毒症期" }
+      ],
+      "source": "KDIGO 慢性肾病指南 2012"
+    }
+  ],
+  "usage_notes": [
+    "本表为 v1.0 基础版,聚焦 7 类慢病核心指标,Phase 1 可直接 SELECT * FROM metric_baseline 用于阈值校验",
+    "metric 字段命名(SBP/DBP/HR/FBG/2hPG/HbA1c/TC/LDL/HDL/TG/UA/BMI/WaistCircum/ALT/AST/Cr/eGFR)与 medical_ner.json metric 类别严格对齐",
+    "stage 四档(normal/borderline/abnormal/critical)对应体检报告的 绿/黄/橙/红 四色,与 family_profile_schema 的告警等级一致",
+    "elderly_adjustment 段在 Phase 1 解读时,需根据 member.birth_date 自动判断是否应用",
+    "high_risk_adjustment 段需根据 member.history(既往病史)判断是否应用(已确诊 ASCVD 等)",
+    "red_flag 触发的危急值(>180/<2.8/>16.7 等)不在本表消费,而是 medical_ner.json red_flag_rules 接管",
+    "新增指标(同型半胱氨酸/C 反应蛋白等)时,按相同结构补充,保持 source 可追溯",
+    "本表不构成医学诊断,所有异常建议均需配合医生面诊"
+  ],
+  "next_steps": [
+    "Phase 1 启动时,本表作为 metric_record 录入时的阈值校验基础,FastAPI 入口校验后入库",
+    "趋势预警逻辑:同一 member 连续 3 次 borderline 或任意一次 abnormal 即触发家庭医生提醒",
+    "考虑接入家庭医生端 review 流程,医生可针对某 member 临时覆盖默认阈值"
+  ]
+}
