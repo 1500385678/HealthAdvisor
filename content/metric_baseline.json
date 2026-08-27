@@ -15,11 +15,12 @@
     "危急值显式标注 - 触发 red_flag 规则的值不在本表定义,而是 medical_ner.json red_flag_rules"
   ],
   "stats": {
-    "metric_count": 7,
+    "metric_count": 17,
     "category_count": 4,
     "stage_count": 4,
     "with_age_segments": 3,
-    "source_guidelines": 6
+    "source_guidelines": 6,
+    "_note": "metric_count = metrics 数组实际指标数(17 项);category_count = categories 数组(4 类);stage_count = stages 四档(normal/borderline/abnormal/critical);with_age_segments = 含 elderly_adjustment 或 child_adjustment 的指标数(3 项);source_guidelines = 引用临床指南数(6 部)。原 metric_count 误写为 7,2026-08-28 巡检发现并修正"
   },
   "categories": [
     "cardiovascular(血压/心率)",
@@ -277,7 +278,7 @@
     }
   ],
   "usage_notes": [
-    "本表为 v1.0 基础版,聚焦 7 类慢病核心指标,Phase 1 可直接 SELECT * FROM metric_baseline 用于阈值校验",
+    "本表为 v1.0 基础版,聚焦 17 项慢病核心指标(SBP/DBP/HR/FBG/2hPG/HbA1c/TC/LDL/HDL/TG/UA/BMI/WaistCircum/ALT/AST/Cr/eGFR),分 4 大类(cardiometabolic/body_composition/liver_kidney),Phase 1 可直接 SELECT * FROM metric_baseline 用于阈值校验",
     "metric 字段命名(SBP/DBP/HR/FBG/2hPG/HbA1c/TC/LDL/HDL/TG/UA/BMI/WaistCircum/ALT/AST/Cr/eGFR)与 medical_ner.json metric 类别严格对齐",
     "stage 四档(normal/borderline/abnormal/critical)对应体检报告的 绿/黄/橙/红 四色,与 family_profile_schema 的告警等级一致",
     "elderly_adjustment 段在 Phase 1 解读时,需根据 member.birth_date 自动判断是否应用",
