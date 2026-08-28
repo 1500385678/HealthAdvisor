@@ -4,6 +4,38 @@
   "project": "HealthAdvisor",
   "project_codename": "01-健康",
   "description": "家庭档案表结构 - Phase 0 第三步,设计 member / allergy / medication / history / family_history 5 张表,供 Phase 1 FastAPI + PostgreSQL 实现使用",
+  "source": "Phase 0 schema design (2026-08-26),参考 PostgreSQL 15 + pgcrypto + 平安好医生/丁香医生家庭档案设计",
+  "language": "zh-CN",
+  "stats": {
+    "table_count": 5,
+    "total_fields": 67,
+    "encrypted_fields": 2,
+    "enum_count": 5,
+    "design_principle_count": 5,
+    "next_step_count": 4,
+    "tables_detail": {
+      "member": 16,
+      "allergy": 11,
+      "medication": 15,
+      "history": 14,
+      "family_history": 11
+    },
+    "encrypted_fields_detail": [
+      "member.id_card_enc",
+      "member.phone_enc"
+    ],
+    "_note": "table_count = tables 数组(5);total_fields = 所有 fields 数组之和(67);encrypted_fields = name 以 _enc 结尾的 BYTEA 字段(2 项,身份证/手机号,均用 pgp_sym_encrypt 列加密);enum_count = enums_summary 键数(5);design_principle_count / next_step_count 自解释。Phase 1 实现 Alembic 迁移时,encrypted_fields 需在 migration 中显式调用 pgcrypto 扩展。2026-08-29 巡检补齐,与 metric_baseline/medical_ner 格式对齐"
+  },
+  "schema_notes": {
+    "tables[].name": "表名,小写+下划线,PostgreSQL 习惯",
+    "tables[].primary_key": "主键字段,除 member 外建议 UUID v4",
+    "tables[].fields[].name": "字段名,小写+下划线;敏感字段以 _enc 结尾表示 BYTEA 列加密",
+    "tables[].fields[].type": "PostgreSQL 原生类型( UUID / VARCHAR / DATE / TIMESTAMPTZ / JSONB / BYTEA / ENUM / DECIMAL )",
+    "tables[].fields[].enum_values": "仅 ENUM 类型字段有,值为字符串数组",
+    "tables[].indexes": "索引用 PG 原生语法,UNIQUE / INDEX 前缀;archived_at IS NULL 是软删常用部分索引",
+    "enums_summary": "所有 ENUM 字段的取值速查,避免跨表重复定义",
+    "next_steps": "Phase 0 收尾 + Phase 1 实施的待办,按优先级排序"
+  },
   "design_principles": [
     "家庭维度优先 - 所有表都挂 family_id,支持多家庭隔离",
     "成员独立画像 - member 为核心,其他表全部 member_id 外键",
